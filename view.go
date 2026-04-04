@@ -6,16 +6,14 @@ func (tf *TokenField) View(width, height, focusedToken int) string {
 	tf.width = width - 2
 	tf.height = height - 2
 
-	return lipgloss.NewStyle().
+	return defaultStyles().tokenField.
 		Width(tf.width).
 		Height(tf.height).
 		Padding(tf.verticalPadding, tf.horizontalPadding).
-		Border(lipgloss.NormalBorder()).
 		Render(tf.renderTokens(focusedToken))
 }
 
 func (tf *TokenField) ViewModal(selected int) string {
-	//return tf.tokens[selected].word
 	return tf.getSentence(selected)
 }
 
@@ -29,10 +27,9 @@ func (m *Model) View() string {
 	case ModalView:
 		return lipgloss.Place(
 			m.width, m.height, lipgloss.Center, lipgloss.Center,
-			lipgloss.NewStyle().Width(m.width/3).Height(m.height/3).
-				Border(lipgloss.NormalBorder()).
-				Padding(1, 2).
-				Align(lipgloss.Center, lipgloss.Top).
+			defaultStyles().modal.
+				Width(m.width/3).
+				Height(m.height/3).
 				Render(m.tokenField.ViewModal(m.index)),
 		)
 	default:

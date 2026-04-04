@@ -146,12 +146,14 @@ func (tf *TokenField) renderTokens(focusedToken int) string {
 		renderedWord := tf.tokens[i].word
 		if focusedToken == i {
 			renderedWord = defaultStyles().focusedToken.Render(renderedWord)
+		} else {
+			renderedWord = defaultStyles().normalToken.Render(renderedWord)
 		}
 
 		sbLine.WriteString(renderedWord)
 		sbLinePlain.WriteString(tf.tokens[i].word)
 		if i+1 < len(tf.tokens) {
-			sbLine.WriteString(tf.tokens[i+1].word)
+			sbLine.WriteString(defaultStyles().normalToken.Render(tf.tokens[i+1].word))
 			sbLinePlain.WriteString(tf.tokens[i+1].word)
 		}
 
