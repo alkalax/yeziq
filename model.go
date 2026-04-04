@@ -37,7 +37,7 @@ type Token struct {
 func initialModel() *Model {
 	return &Model{
 		tokenField: TokenField{
-			tokens:            tokenize(sample),
+			tokens:            tokenize(sample3),
 			horizontalPadding: 1,
 		},
 		viewState: TextView,

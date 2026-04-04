@@ -1,8 +1,13 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
+	"errors"
+	"io"
 	"log"
 	"math"
+	"net/http"
 	"regexp"
 	"strings"
 )
@@ -10,6 +15,8 @@ import (
 var sample string = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
 
 var sample2 string = "asdfsadf sadfsadf. asdfsadf. asdfsadfsdf? asdfsadf sadfsadf. asdfsadf. asdfsadfsdf?asdfsadf sadfsadf. asdfsadf. asdfsadfsdf? asdfsadf sadfsadf. asdfsadf. asdfsadfsdf?asdfsadf sadfsadf. asdfsadf. asdfsadfsdf?"
+
+var sample3 string = "En un lugar de la Mancha, de cuyo nombre no quiero acordarme, no ha mucho tiempo que vivía un hidalgo de los de lanza en astillero, adarga antigua, rocín flaco y galgo corredor. Una olla de algo más vaca que carnero, salpicón las más noches, duelos y quebrantos los sábados, lantejas los viernes, algún palomino de añadidura los domingos, consumían las tres partes de su hacienda."
 
 func tokenize(text string) []Token {
 	re := regexp.MustCompile(`[,.?!]?\s+`)
@@ -205,4 +212,63 @@ func (tf *TokenField) getSentence(selected int) string {
 	}
 
 	return sb.String()
+}
+
+func getTranslations(text string) ([]string, error) {
+	type reqObj struct {
+		Query        string `json:"q"`
+		Source       string `json:"source"`
+		Target       string `json:"target"`
+		Alternatives int    `json:"alternatives"`
+		Format       string `json:"format"`
+	}
+	payload := reqObj{
+		Query:        text,
+		Source:       "es",
+		Target:       "en",
+		Format:       "text",
+		Alternatives: 4,
+	}
+	reqBody, err := json.Marshal(payload)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, translateUrl, bytes.NewReader(reqBody))
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	client := http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		errBody, _ := io.ReadAll(resp.Body)
+		return nil, errors.New(string(errBody))
+	}
+
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var respObj struct {
+		Alternatives   []string `json:"alternatives"`
+		TranslatedText string   `json:"translatedText"`
+	}
+	if err = json.Unmarshal(respBody, &respObj); err != nil {
+		return nil, err
+	}
+
+	translations := []string{respObj.TranslatedText}
+	for _, alt := range respObj.Alternatives {
+		translations = append(translations, alt)
+	}
+
+	return translations, nil
 }
