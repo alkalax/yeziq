@@ -293,7 +293,9 @@ func (m *Model) View() string {
 	case ModalView:
 		return lipgloss.Place(
 			m.width, m.height, lipgloss.Center, lipgloss.Center,
-			lipgloss.NewStyle().Width(m.width/3).Height(m.height/3).Border(lipgloss.NormalBorder()).
+			lipgloss.NewStyle().Width(m.width/3).Height(m.height/3).
+				Border(lipgloss.NormalBorder()).
+				Align(lipgloss.Center, lipgloss.Center).
 				Render(m.tokenField.tokens[m.index].word),
 		)
 	default:
