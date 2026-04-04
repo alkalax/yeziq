@@ -31,7 +31,8 @@ func (m *Model) View() string {
 			m.width, m.height, lipgloss.Center, lipgloss.Center,
 			lipgloss.NewStyle().Width(m.width/3).Height(m.height/3).
 				Border(lipgloss.NormalBorder()).
-				Align(lipgloss.Center, lipgloss.Center).
+				Padding(1, 2).
+				Align(lipgloss.Center, lipgloss.Top).
 				Render(m.tokenField.ViewModal(m.index)),
 		)
 	default:
