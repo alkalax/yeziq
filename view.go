@@ -14,6 +14,11 @@ func (tf *TokenField) View(width, height, focusedToken int) string {
 		Render(tf.renderTokens(focusedToken))
 }
 
+func (tf *TokenField) ViewModal(selected int) string {
+	//return tf.tokens[selected].word
+	return tf.getSentence(selected)
+}
+
 func (m *Model) View() string {
 	switch m.viewState {
 	case TextView:
@@ -27,7 +32,7 @@ func (m *Model) View() string {
 			lipgloss.NewStyle().Width(m.width/3).Height(m.height/3).
 				Border(lipgloss.NormalBorder()).
 				Align(lipgloss.Center, lipgloss.Center).
-				Render(m.tokenField.tokens[m.index].word),
+				Render(m.tokenField.ViewModal(m.index)),
 		)
 	default:
 		return ""

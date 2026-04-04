@@ -170,3 +170,37 @@ func (tf *TokenField) renderTokens(focusedToken int) string {
 
 	return sbTokenField.String()
 }
+
+func (tf *TokenField) getSentence(selected int) string {
+	index := -1
+	for i, token := range tf.tokens {
+		if token.index == selected {
+			index = i
+			break
+		}
+	}
+	start := index
+	for start >= 0 && !strings.ContainsRune(".?!", rune(tf.tokens[start].word[0])) {
+		start--
+	}
+	start++
+
+	end := index
+	for end <= len(tf.tokens)-1 && !strings.ContainsRune(".?!", rune(tf.tokens[end].word[0])) {
+		end++
+	}
+	if end <= len(tf.tokens)-1 {
+		end++
+	}
+
+	var sb strings.Builder
+	for i := start; i < end; i++ {
+		renderedToken := tf.tokens[i].word
+		if i == index {
+			renderedToken = defaultStyles().focusedToken.Render(renderedToken)
+		}
+		sb.WriteString(renderedToken)
+	}
+
+	return sb.String()
+}
