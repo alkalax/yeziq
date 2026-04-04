@@ -76,9 +76,9 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		case ModalView:
 			switch msg.String() {
-			case "ctrl+c":
+			case "ctrl+c", "q":
 				return m, tea.Quit
-			case "q":
+			case " ":
 				m.viewState = TextView
 			}
 		}
