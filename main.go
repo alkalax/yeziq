@@ -7,6 +7,8 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
+const translateUrl = "http://127.0.0.1:5000/translate"
+
 func main() {
 	f, err := tea.LogToFile("debug.log", "debug")
 	if err != nil {

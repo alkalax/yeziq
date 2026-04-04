@@ -8,7 +8,7 @@ type Styles struct {
 
 func defaultStyles() Styles {
 	mainColor := lipgloss.Color("104")
-	textColor := mainColor
+	textColor := lipgloss.Color("7")
 	focusedTokenColor := lipgloss.Color("10")
 
 	return Styles{
@@ -16,7 +16,7 @@ func defaultStyles() Styles {
 			Foreground(textColor),
 		focusedToken: lipgloss.NewStyle().
 			Bold(true).
-			//Underline(true).
+			Underline(true).
 			//Italic(true).
 			Foreground(focusedTokenColor),
 		tokenField: lipgloss.NewStyle().

@@ -1,6 +1,10 @@
 package main
 
-import "github.com/charmbracelet/lipgloss"
+import (
+	"strings"
+
+	"github.com/charmbracelet/lipgloss"
+)
 
 func (tf *TokenField) View(width, height, focusedToken int) string {
 	tf.width = width - 2
@@ -14,7 +18,14 @@ func (tf *TokenField) View(width, height, focusedToken int) string {
 }
 
 func (tf *TokenField) ViewModal(selected int) string {
-	return tf.getSentence(selected)
+	translations, err := getTranslations(tf.tokens[selected].word)
+	var renderedTranslations string
+	if err != nil {
+		renderedTranslations = err.Error()
+	} else {
+		renderedTranslations = strings.Join(translations, "\n")
+	}
+	return tf.getSentence(selected) + "\n\n" + renderedTranslations
 }
 
 func (m *Model) View() string {
