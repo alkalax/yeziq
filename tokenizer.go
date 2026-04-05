@@ -111,7 +111,7 @@ func (tf *TokenField) switchFocusVertically(currentIndex int, up bool) int {
 	}
 }
 
-func (tf *TokenField) renderTokens(focusedToken int) string {
+func (tf *TokenField) renderTokens(focusedToken int, multiselect bool, multistart int) string {
 	var netLineLength int = tf.width - 2*tf.horizontalPadding
 	var sbTokenField strings.Builder
 
@@ -151,7 +151,9 @@ func (tf *TokenField) renderTokens(focusedToken int) string {
 		log.Println(tf.tokens[i])
 
 		renderedWord := tf.tokens[i].word
-		if focusedToken == i {
+		if multiselect && multistart <= i && i <= focusedToken {
+			renderedWord = defaultStyles().multiSelectToken.Render(renderedWord)
+		} else if !multiselect && focusedToken == i {
 			renderedWord = defaultStyles().focusedToken.Render(renderedWord)
 		} else {
 			renderedWord = defaultStyles().normalToken.Render(renderedWord)
@@ -160,7 +162,12 @@ func (tf *TokenField) renderTokens(focusedToken int) string {
 		sbLine.WriteString(renderedWord)
 		sbLinePlain.WriteString(tf.tokens[i].word)
 		if i+1 < len(tf.tokens) {
-			sbLine.WriteString(defaultStyles().normalToken.Render(tf.tokens[i+1].word))
+			delim := tf.tokens[i+1].word
+			if multiselect && multistart <= i && i < focusedToken {
+				sbLine.WriteString(defaultStyles().multiSelectToken.Render(delim))
+			} else {
+				sbLine.WriteString(defaultStyles().normalToken.Render(delim))
+			}
 			sbLinePlain.WriteString(tf.tokens[i+1].word)
 		}
 

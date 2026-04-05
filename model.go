@@ -10,11 +10,13 @@ const (
 )
 
 type Model struct {
-	viewState  ViewState
-	tokenField TokenField
-	width      int
-	height     int
-	index      int
+	viewState   ViewState
+	tokenField  TokenField
+	width       int
+	height      int
+	index       int
+	multiselect bool
+	start       int
 }
 
 type TokenField struct {
@@ -73,6 +75,9 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.index = m.tokenField.switchFocusVertically(m.index, true)
 			case " ":
 				m.viewState = ModalView
+			case "m":
+				m.multiselect = !m.multiselect
+				m.start = m.index
 			}
 		case ModalView:
 			switch msg.String() {
