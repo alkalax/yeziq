@@ -8,6 +8,7 @@ import (
 	"log"
 	"math"
 	"net/http"
+	"os"
 	"regexp"
 	"strings"
 )
@@ -17,6 +18,13 @@ var sample string = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, se
 var sample2 string = "asdfsadf sadfsadf. asdfsadf. asdfsadfsdf? asdfsadf sadfsadf. asdfsadf. asdfsadfsdf?asdfsadf sadfsadf. asdfsadf. asdfsadfsdf? asdfsadf sadfsadf. asdfsadf. asdfsadfsdf?asdfsadf sadfsadf. asdfsadf. asdfsadfsdf?"
 
 var sample3 string = "En un lugar de la Mancha, de cuyo nombre no quiero acordarme, no ha mucho tiempo que vivía un hidalgo de los de lanza en astillero, adarga antigua, rocín flaco y galgo corredor. Una olla de algo más vaca que carnero, salpicón las más noches, duelos y quebrantos los sábados, lantejas los viernes, algún palomino de añadidura los domingos, consumían las tres partes de su hacienda."
+
+type Translator int
+
+const (
+	LibreTranslate Translator = iota
+	DeepL
+)
 
 func tokenize(text string) []Token {
 	re := regexp.MustCompile(`[,.?!]?\s+`)
@@ -228,7 +236,20 @@ func (tf *TokenField) getSentence(selected int) string {
 	return sb.String()
 }
 
-func getTranslations(text string) ([]string, error) {
+func getTranslations(text string, translator Translator) ([]string, error) {
+	switch translator {
+	case LibreTranslate:
+		return getTranslationsLibreTranslate(text)
+	case DeepL:
+		return getTranslationsDeepL(text)
+	default:
+		return nil, errors.New("unrecognized translator")
+	}
+}
+
+func getTranslationsLibreTranslate(text string) ([]string, error) {
+	const translateUrl = "http://127.0.0.1:5000/translate"
+
 	type reqObj struct {
 		Query        string `json:"q"`
 		Source       string `json:"source"`
@@ -282,6 +303,66 @@ func getTranslations(text string) ([]string, error) {
 	translations := []string{respObj.TranslatedText}
 	for _, alt := range respObj.Alternatives {
 		translations = append(translations, alt)
+	}
+
+	return translations, nil
+}
+
+func getTranslationsDeepL(text string) ([]string, error) {
+	const translateUrl = "https://api-free.deepl.com/v2/translate"
+
+	type reqObj struct {
+		Text   []string `json:"text"`
+		Source string   `json:"source_lang"`
+		Target string   `json:"target_lang"`
+	}
+	payload := reqObj{
+		Text:   []string{text},
+		Source: "ES",
+		Target: "EN",
+	}
+	reqBody, err := json.Marshal(payload)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, translateUrl, bytes.NewReader(reqBody))
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "DeepL-Auth-Key "+os.Getenv("API_KEY"))
+	client := http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		errBody, _ := io.ReadAll(resp.Body)
+		return nil, errors.New(string(errBody))
+	}
+
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var respObj struct {
+		Translations []struct {
+			Text   string `json:"text"`
+			Source string `json:"detected_source_language"`
+		} `json:"translations"`
+	}
+	if err = json.Unmarshal(respBody, &respObj); err != nil {
+		return nil, err
+	}
+
+	translations := []string{}
+	for _, translation := range respObj.Translations {
+		translations = append(translations, translation.Text)
 	}
 
 	return translations, nil

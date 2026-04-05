@@ -18,7 +18,7 @@ func (tf *TokenField) View(width, height, focusedToken int, multiselect bool, mu
 }
 
 func (tf *TokenField) ViewModal(selected int, multiselect bool, multistart int) string {
-	translations, err := getTranslations(tf.getWordSelection(selected, multiselect, multistart))
+	translations, err := getTranslations(tf.getWordSelection(selected, multiselect, multistart), DeepL)
 	var renderedTranslations string
 	if err != nil {
 		renderedTranslations = err.Error()
