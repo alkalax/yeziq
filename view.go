@@ -17,8 +17,9 @@ func (tf *TokenField) View(width, height, focusedToken int, multiselect bool, mu
 		Render(tf.renderTokens(focusedToken, multiselect, multistart))
 }
 
-func (tf *TokenField) ViewModal(selected int) string {
-	translations, err := getTranslations(tf.tokens[selected].word)
+func (tf *TokenField) ViewModal(selected int, multiselect bool, multistart int) string {
+	//translations, err := getTranslations(tf.tokens[selected].word)
+	translations, err := getTranslations(tf.getWordSelection(selected, multiselect, multistart))
 	var renderedTranslations string
 	if err != nil {
 		renderedTranslations = err.Error()
@@ -41,7 +42,7 @@ func (m *Model) View() string {
 			defaultStyles().modal.
 				Width(m.width/3).
 				Height(m.height/3).
-				Render(m.tokenField.ViewModal(m.index)),
+				Render(m.tokenField.ViewModal(m.index, m.multiselect, m.start)),
 		)
 	default:
 		return ""

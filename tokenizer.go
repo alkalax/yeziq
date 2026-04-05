@@ -279,3 +279,16 @@ func getTranslations(text string) ([]string, error) {
 
 	return translations, nil
 }
+
+func (tf *TokenField) getWordSelection(selected int, multiselect bool, multistart int) string {
+	if !multiselect {
+		return tf.tokens[selected].word
+	}
+
+	var sb strings.Builder
+	for i := multistart; i <= selected; i++ {
+		sb.WriteString(tf.tokens[i].word)
+	}
+
+	return strings.Trim(sb.String(), " ")
+}
