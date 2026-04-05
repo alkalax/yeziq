@@ -115,6 +115,13 @@ func (tf *TokenField) renderTokens(focusedToken int, multiselect bool, multistar
 	var netLineLength int = tf.width - 2*tf.horizontalPadding
 	var sbTokenField strings.Builder
 
+	multiend := focusedToken
+	if multiselect && focusedToken < multistart {
+		tmp := multistart
+		multistart = focusedToken
+		multiend = tmp
+	}
+
 	line := 0
 	index := 0
 	renderedIndex := 0
@@ -151,7 +158,7 @@ func (tf *TokenField) renderTokens(focusedToken int, multiselect bool, multistar
 		log.Println(tf.tokens[i])
 
 		renderedWord := tf.tokens[i].word
-		if multiselect && multistart <= i && i <= focusedToken {
+		if multiselect && multistart <= i && i <= multiend {
 			renderedWord = defaultStyles().multiSelectToken.Render(renderedWord)
 		} else if !multiselect && focusedToken == i {
 			renderedWord = defaultStyles().focusedToken.Render(renderedWord)
@@ -163,7 +170,7 @@ func (tf *TokenField) renderTokens(focusedToken int, multiselect bool, multistar
 		sbLinePlain.WriteString(tf.tokens[i].word)
 		if i+1 < len(tf.tokens) {
 			delim := tf.tokens[i+1].word
-			if multiselect && multistart <= i && i < focusedToken {
+			if multiselect && multistart <= i && i < multiend {
 				sbLine.WriteString(defaultStyles().multiSelectToken.Render(delim))
 			} else {
 				sbLine.WriteString(defaultStyles().normalToken.Render(delim))
@@ -285,8 +292,15 @@ func (tf *TokenField) getWordSelection(selected int, multiselect bool, multistar
 		return tf.tokens[selected].word
 	}
 
+	multiend := selected
+	if multiselect && selected < multistart {
+		tmp := multistart
+		multistart = selected
+		multiend = tmp
+	}
+
 	var sb strings.Builder
-	for i := multistart; i <= selected; i++ {
+	for i := multistart; i <= multiend; i++ {
 		sb.WriteString(tf.tokens[i].word)
 	}
 
