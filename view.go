@@ -6,7 +6,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-func (tf *TokenField) View(width, height, focusedToken int) string {
+func (tf *TokenField) View(width, height, focusedToken int, multiselect bool, multistart int) string {
 	tf.width = width - 2
 	tf.height = height - 2
 
@@ -14,11 +14,12 @@ func (tf *TokenField) View(width, height, focusedToken int) string {
 		Width(tf.width).
 		Height(tf.height).
 		Padding(tf.verticalPadding, tf.horizontalPadding).
-		Render(tf.renderTokens(focusedToken))
+		Render(tf.renderTokens(focusedToken, multiselect, multistart))
 }
 
-func (tf *TokenField) ViewModal(selected int) string {
-	translations, err := getTranslations(tf.tokens[selected].word)
+func (tf *TokenField) ViewModal(selected int, multiselect bool, multistart int) string {
+	//translations, err := getTranslations(tf.tokens[selected].word)
+	translations, err := getTranslations(tf.getWordSelection(selected, multiselect, multistart))
 	var renderedTranslations string
 	if err != nil {
 		renderedTranslations = err.Error()
@@ -33,7 +34,7 @@ func (m *Model) View() string {
 	case TextView:
 		return lipgloss.Place(
 			m.width, m.height, lipgloss.Center, lipgloss.Bottom,
-			m.tokenField.View(m.width/2, m.height*7/8, m.index),
+			m.tokenField.View(m.width/2, m.height*7/8, m.index, m.multiselect, m.start),
 		)
 	case ModalView:
 		return lipgloss.Place(
@@ -41,7 +42,7 @@ func (m *Model) View() string {
 			defaultStyles().modal.
 				Width(m.width/3).
 				Height(m.height/3).
-				Render(m.tokenField.ViewModal(m.index)),
+				Render(m.tokenField.ViewModal(m.index, m.multiselect, m.start)),
 		)
 	default:
 		return ""

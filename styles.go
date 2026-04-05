@@ -3,13 +3,14 @@ package main
 import "github.com/charmbracelet/lipgloss"
 
 type Styles struct {
-	normalToken, focusedToken, tokenField, modal lipgloss.Style
+	normalToken, focusedToken, multiSelectToken, tokenField, modal lipgloss.Style
 }
 
 func defaultStyles() Styles {
 	mainColor := lipgloss.Color("104")
 	textColor := lipgloss.Color("7")
 	focusedTokenColor := lipgloss.Color("10")
+	multiSelectColor := lipgloss.Color("1")
 
 	return Styles{
 		normalToken: lipgloss.NewStyle().
@@ -19,6 +20,8 @@ func defaultStyles() Styles {
 			Underline(true).
 			//Italic(true).
 			Foreground(focusedTokenColor),
+		multiSelectToken: lipgloss.NewStyle().
+			Background(multiSelectColor),
 		tokenField: lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
 			BorderForeground(mainColor),
