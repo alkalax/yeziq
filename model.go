@@ -28,12 +28,13 @@ type TokenField struct {
 }
 
 type Token struct {
-	delim bool
-	word  string
-	start int
-	end   int
-	line  int
-	index int
+	word        string
+	translation string
+	delim       bool
+	start       int
+	end         int
+	line        int
+	index       int
 }
 
 func initialModel() *Model {

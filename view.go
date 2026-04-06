@@ -25,7 +25,17 @@ func (tf *TokenField) ViewModal(selected int, multiselect bool, multistart int) 
 	} else {
 		renderedTranslations = strings.Join(translations, "\n")
 	}
-	return tf.getSentence(selected) + "\n\n" + renderedTranslations
+
+	var sb strings.Builder
+	sb.WriteString(tf.getSentence(selected))
+	sb.WriteString("\n---\n")
+	if !multiselect && tf.tokens[selected].translation == "" {
+		sb.WriteString(defaultStyles().modalNoTranslation.Render("\nNo translation selected.\n"))
+		sb.WriteString("\n---\n")
+	}
+	sb.WriteString(renderedTranslations)
+
+	return sb.String()
 }
 
 func (m *Model) View() string {
