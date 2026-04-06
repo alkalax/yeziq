@@ -18,14 +18,17 @@ func (tf *TokenField) View(width, height, focusedToken int, multiselect bool, mu
 }
 
 func (tf *TokenField) ViewModal(selected int, multiselect bool, multistart int) string {
-	translations, err := getTranslations(tf.getWordSelection(selected, multiselect, multistart), DeepL)
-	var renderedTranslations string
-	if err != nil {
-		renderedTranslations = err.Error()
-	} else {
-		renderedTranslations = strings.Join(translations, "\n")
+	var sb strings.Builder
+	sb.WriteString(tf.getSentence(selected))
+	sb.WriteString("\n---\n")
+	if !multiselect && tf.tokens[selected].translation == "" {
+		sb.WriteString(defaultStyles().modalNoTranslation.Render("\nNo translation selected.\n"))
+		sb.WriteString("\n---\n")
 	}
-	return tf.getSentence(selected) + "\n\n" + renderedTranslations
+
+	sb.WriteString(renderTranslations(tf.getWordSelection(selected, multiselect, multistart)))
+
+	return sb.String()
 }
 
 func (m *Model) View() string {
