@@ -236,6 +236,32 @@ func (tf *TokenField) getSentence(selected int) string {
 	return sb.String()
 }
 
+func renderTranslations(text string) string {
+	var sb strings.Builder
+	for _, translator := range []Translator{DeepL, LibreTranslate} {
+
+		switch translator {
+		case LibreTranslate:
+			sb.WriteString("\nLibreTranslate:\n\n")
+		case DeepL:
+			sb.WriteString("\nDeepL:\n\n")
+		default:
+			sb.WriteString("\nunknown translator:\n\n")
+		}
+
+		translations, err := getTranslations(text, translator)
+		if err != nil {
+			sb.WriteString(err.Error())
+			sb.WriteRune('\n')
+		} else {
+			sb.WriteString(strings.Join(translations, "\n"))
+			sb.WriteRune('\n')
+		}
+	}
+
+	return sb.String()
+}
+
 func getTranslations(text string, translator Translator) ([]string, error) {
 	switch translator {
 	case LibreTranslate:
