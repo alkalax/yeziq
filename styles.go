@@ -9,6 +9,7 @@ type Styles struct {
 	tokenField         lipgloss.Style
 	modal              lipgloss.Style
 	modalNoTranslation lipgloss.Style
+	modalTranslator    lipgloss.Style
 }
 
 func defaultStyles() Styles {
@@ -16,6 +17,7 @@ func defaultStyles() Styles {
 	textColor := lipgloss.Color("7")
 	focusedTokenColor := lipgloss.Color("10")
 	multiSelectColor := lipgloss.Color("1")
+	translatorColor := lipgloss.Color("60")
 
 	return Styles{
 		normalToken: lipgloss.NewStyle().
@@ -37,5 +39,8 @@ func defaultStyles() Styles {
 			Align(lipgloss.Center, lipgloss.Top),
 		modalNoTranslation: lipgloss.NewStyle().
 			Italic(true),
+		modalTranslator: lipgloss.NewStyle().
+			Foreground(translatorColor).
+			Bold(true),
 	}
 }
