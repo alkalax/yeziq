@@ -240,21 +240,24 @@ func renderTranslations(text string) string {
 	var sb strings.Builder
 	for _, translator := range []Translator{DeepL, LibreTranslate} {
 
+		sb.WriteRune('\n')
+		translatorStyle := defaultStyles().modalTranslator
 		switch translator {
 		case LibreTranslate:
-			sb.WriteString("\nLibreTranslate:\n\n")
+			sb.WriteString(translatorStyle.Render("LibreTranslate"))
 		case DeepL:
-			sb.WriteString("\nDeepL:\n\n")
+			sb.WriteString(translatorStyle.Render("DeepL"))
 		default:
-			sb.WriteString("\nunknown translator:\n\n")
+			sb.WriteString(translatorStyle.Render("unrecognized translator"))
 		}
+		sb.WriteString(":\n\n")
 
 		translations, err := getTranslations(text, translator)
 		if err != nil {
 			sb.WriteString(err.Error())
 			sb.WriteRune('\n')
 		} else {
-			sb.WriteString(strings.Join(translations, "\n"))
+			sb.WriteString(strings.Join(translations, ", "))
 			sb.WriteRune('\n')
 		}
 	}
